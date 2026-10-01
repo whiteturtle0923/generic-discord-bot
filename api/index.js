@@ -137,7 +137,21 @@ export default async (request, response) => {
                         response.status(200).send({
                             type: 4,
                             data: {
-                                content: `Submission by <@${user.id}>: ${url}`
+                                content: `Submission by <@${user.id}>: ${url}`,
+                                flags: 1 << 15,
+                                components: [
+                                    {
+                                        type: 1,
+                                        components: [
+                                            {
+                                                type: 2,
+                                                style: 1,
+                                                label: "Rate!",
+                                                custom_id: `rate_${url}`,
+                                            }
+                                        ]
+                                    }
+                                ]
                             },
                         });
                         break;
@@ -155,6 +169,16 @@ export default async (request, response) => {
                     response.status(400).send({ error: "Unknown Type" });
                     break;
             }
+        }
+        else if (message.type === InteractionType.MESSAGE_COMPONENT) {
+            const customId = message.data.custom_id;
+            response.status(200).send({
+                type: 4,
+                data: {
+                    content: `Error submitting short: ${customId}`,
+                    flags: 64,
+                },
+            });
         }
         else {
             console.error("Unknown Type");
