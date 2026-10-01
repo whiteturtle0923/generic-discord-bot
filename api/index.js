@@ -139,12 +139,6 @@ export default async (request, response) => {
                             data: {
                                 content: `Submission by <@${user.id}>: ${url}`,
                                 flags: 32768,
-                                components: [
-                                    {
-                                        type: 10,
-                                        content: "Rate this short",
-                                    }
-                                ]
                             },
                         });
                         break;
