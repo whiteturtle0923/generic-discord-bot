@@ -76,7 +76,6 @@ function updateShort(id, dbType, ...rates) {
     if (db)
         db.close();
 }
-const rateData = { name: "whiteturtle0923", rate: 75, notes: "test", date: Date.now() };
 export const INVITE_COMMAND = {
     name: "invite",
     description: "Get an invite link to add the bot to your server",
@@ -124,11 +123,29 @@ export default async (request, response) => {
                     break;
                 case SUBMIT_COMMAND.name.toLowerCase():
                     const user = message.member.user;
-                    const url = message.data.options[0].value;
+                    let url = message.data.options[0].value;
+                    let errorText = "";
+                    if (typeof url !== "string") {
+                        errorText = "URL must be text";
+                    }
+                    else if (!url.match(/.+youtube\.com\/shorts\/.+/)) {
+                        errorText = "URL must be a youtube shorts link";
+                    }
+                    else {
+                        url = url.replace(/\?s.+$/, "");
+                        url = url.replace(/\&.+$/, "");
+                        response.status(200).send({
+                            type: 4,
+                            data: {
+                                content: `Submission by <@${user.id}>: ${url}`
+                            },
+                        });
+                        break;
+                    }
                     response.status(200).send({
                         type: 4,
                         data: {
-                            content: `New short submitted by <@${user.id}>: ${url}`,
+                            content: `Error submitting short: ${errorText}`,
                             flags: 64,
                         },
                     });
