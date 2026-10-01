@@ -141,7 +141,18 @@ export default async (request, response) => {
                                 components: [
                                     {
                                         type: 10,
-                                        content: "Rate this short",
+                                        content: `Submission by <@${user.id}>: ${url}`,
+                                    },
+                                    {
+                                        type: 1,
+                                        components: [
+                                            {
+                                                type: 2,
+                                                style: 1,
+                                                label: "Rate!",
+                                                custom_id: `rate_${url}`,
+                                            }
+                                        ]
                                     }
                                 ]
                             },
