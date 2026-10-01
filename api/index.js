@@ -2,7 +2,6 @@ import { InteractionResponseType, InteractionType, verifyKey } from "discord-int
 import getRawBody from "raw-body";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
- console.log(fs.readdirSync("./"))
 
 function insertShort(id, date, submitter, dbType = 0) {
     let db;
@@ -152,6 +151,7 @@ export default async (request, response) => {
                     const url = message.data.options[0].value;
                     insertShort(url, Date.now(), userId, 1);
                     console.log(`New short submitted by <@${userId}>: ${url}`);*/
+                    console.log(fs.readdirSync("./"))
 					response.status(200).send({
 						type: 4,
 						data: {
