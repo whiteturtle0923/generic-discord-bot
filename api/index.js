@@ -137,8 +137,13 @@ export default async (request, response) => {
                         response.status(200).send({
                             type: 4,
                             data: {
-                                content: `Submission by <@${user.id}>: ${url}`,
                                 flags: 32768,
+                                components: [
+                                    {
+                                        type: 10,
+                                        content: "Rate this short",
+                                    }
+                                ]
                             },
                         });
                         break;
