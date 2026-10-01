@@ -144,14 +144,6 @@ export default async (request, response) => {
                                         content: `Submission by <@${user.id}>: ${url}`,
                                     },
                                     {
-                                        type: 12,
-                                        items: [
-                                            {
-                                                media: { url: url }
-                                            }
-                                        ]
-                                    },
-                                    {
                                         type: 1,
                                         components: [
                                             {
@@ -170,7 +162,7 @@ export default async (request, response) => {
                     response.status(200).send({
                         type: 4,
                         data: {
-                            content: `Error submitting short: ${errorText}`,
+                            content: `placeholder`,
                             flags: 64,
                         },
                     });
