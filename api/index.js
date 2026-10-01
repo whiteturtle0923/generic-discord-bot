@@ -162,7 +162,7 @@ export default async (request, response) => {
                     response.status(200).send({
                         type: 4,
                         data: {
-                            content: `placeholder`,
+                            content: `Error submitting short: ${errorText}`,
                             flags: 64,
                         },
                     });
@@ -178,7 +178,7 @@ export default async (request, response) => {
             response.status(200).send({
                 type: 4,
                 data: {
-                    content: `Error submitting short: ${customId}`,
+                    content: `video embed for now this is just a placeholder: ${customId}`,
                     flags: 64,
                 },
             });
