@@ -138,7 +138,7 @@ export default async (request, response) => {
                             type: 4,
                             data: {
                                 content: `Submission by <@${user.id}>: ${url}`,
-                                flags: 1 << 15,
+                                flags: 32768,
                                 components: [
                                     {
                                         type: 1,
