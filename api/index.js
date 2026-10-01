@@ -147,7 +147,7 @@ export default async (request, response) => {
                                         type: 12,
                                         items: [
                                             {
-                                                media: url
+                                                media: { url: url }
                                             }
                                         ]
                                     },
