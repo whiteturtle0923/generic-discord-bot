@@ -11,5 +11,9 @@
 		"register": "node -r dotenv/config register.js",
 		"start": "node -r dotenv/config api/index.js"
 	},
-    "type": "module"
+	"type": "module",
+	"devDependencies": {
+		"@tsconfig/node24": "^24.0.5",
+		"@types/node": "^26.6.3"
+	}
 }
