@@ -160,6 +160,7 @@ export default async (request, response) => {
                         });
                         break;
                     }
+                    console.log(3);
                     response.status(200).send({
                         type: 4,
                         data: {
