@@ -1,4 +1,4 @@
-import { InteractionResponseType, InteractionType, verifyKey } from "discord-interactions";
+import { InteractionResponseFlags, InteractionResponseType, InteractionType, verifyKey } from "discord-interactions";
 import getRawBody from "raw-body";
 import { DatabaseSync } from "node:sqlite";
 import fetch from "node-fetch";
@@ -115,10 +115,10 @@ export default async (request, response) => {
             switch (message.data.name.toLowerCase()) {
                 case INVITE_COMMAND.name.toLowerCase():
                     response.status(200).send({
-                        type: 4,
+                        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
                             content: INVITE_URL,
-                            flags: 64,
+                            flags: InteractionResponseFlags.EPHEMERAL,
                         },
                     });
                     break;
@@ -136,7 +136,7 @@ export default async (request, response) => {
                         url = url.replace(/\?s.+$/, "");
                         url = url.replace(/\&.+$/, "");
                         response.status(200).send({
-                            type: 4,
+                            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                             data: {
                                 flags: 32768,
                                 components: [
@@ -160,18 +160,21 @@ export default async (request, response) => {
                         });
                         const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
                         console.log("1");
-                        const replyResponse = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}`, {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Authorization": `Bot ${process.env.TOKEN}`,
-                                "User-Agent": "GenericBot (https://github.com/discord/discord-example-app, 1.0.0)"
-                            },
-                            body: JSON.stringify({
-                                content: `${url}`
-                            })
+                        wait(10 * 1000).then(async () => {
+                            console.log("3");
+                            const replyResponse = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}`, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": `Bot ${process.env.TOKEN}`,
+                                    "User-Agent": "GenericBot (https://github.com/discord/discord-example-app, 1.0.0)"
+                                },
+                                body: JSON.stringify({
+                                    content: `${url}`
+                                })
+                            });
+                            console.log(replyResponse.text());
                         });
-                        console.log(replyResponse.text());
                         console.log("2");
                         break;
                     }
