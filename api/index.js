@@ -201,7 +201,7 @@ export default async (request, response) => {
                                     type: 4,
                                     style: 1,
                                     custom_id: "rating",
-                                    placeholder: "please put a number thanks"
+                                    placeholder: "integer between 0 and 100"
                                 }
                             },
                             {
@@ -228,7 +228,7 @@ export default async (request, response) => {
                     response.status(200).send({
                         type: 4,
                         data: {
-                            content: `Thanks for rating this short!\nYour rating was: ${rating} out of 100, with notes "${components[1].component.value}'`,
+                            content: `Thanks for rating this short!\nYour rating was: ${rating} out of 100, with notes "${components[1].component.value}"`,
                             flags: 64
                         },
                     });
