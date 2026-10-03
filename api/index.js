@@ -135,6 +135,8 @@ export default async (request, response) => {
                     else {
                         url = url.replace(/\?s.+$/, "");
                         url = url.replace(/\&.+$/, "");
+                        console.log("0");
+                        await setTimeout(1000);
                         response.status(200).send({
                             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                             data: {
