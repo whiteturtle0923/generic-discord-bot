@@ -166,7 +166,6 @@ export default async (request, response) => {
                         response.status(200).send({
                             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                             data: {
-                                flags: 32768,
                                 content: `Submission by <@${user.id}>: ${url}`
                             },
                         });
