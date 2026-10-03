@@ -225,7 +225,7 @@ export default async (request, response) => {
                 response.status(200).send({
                     type: 4,
                     data: {
-                        content: `Thanks for rating this short!\nYour rating was: ${message.data.components[0].value} out of 100, with notes ${message.data.components[1].value}`,
+                        content: `Thanks for rating this short!\nYour rating was: ${JSON.stringify(message.data.components)} out of 100, with notes ${message.data.components[1].value}`,
                         flags: 64
                     },
                 });
