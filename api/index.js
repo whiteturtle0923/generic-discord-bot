@@ -209,7 +209,7 @@ export default async (request, response) => {
                                 label: "Notes",
                                 component: {
                                     type: 4,
-                                    style: 1,
+                                    style: 2,
                                     custom_id: "notes",
                                     placeholder: "text has to be less than 4000 characters"
                                 }
@@ -225,7 +225,7 @@ export default async (request, response) => {
                 response.status(200).send({
                     type: 4,
                     data: {
-                        content: `${message.data.components}`,
+                        content: `Thanks for rating this short!\nYour rating was: ${message.data.components[0].value} out of 100, with notes ${message.data.components[1].value}`,
                         flags: 64
                     },
                 });
