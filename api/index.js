@@ -187,13 +187,49 @@ export default async (request, response) => {
         }
         else if (message.type === InteractionType.MESSAGE_COMPONENT) {
             const customId = message.data.custom_id;
-            response.status(200).send({
-                type: 4,
-                data: {
-                    content: `video embed for now this is just a placeholder: ${customId}`,
-                    flags: 64,
-                },
-            });
+            if (customId.startsWith("rate_")) {
+                response.status(200).send({
+                    type: 9,
+                    data: {
+                        custom_id: "rate_modal",
+                        title: "Rate this short!",
+                        components: [
+                            {
+                                type: 18,
+                                label: "Rating (out of 100)",
+                                component: {
+                                    type: 4,
+                                    style: 1,
+                                    custom_id: "rating",
+                                    placeholder: "please put a number thanks"
+                                }
+                            },
+                            {
+                                type: 18,
+                                label: "Notes",
+                                component: {
+                                    type: 4,
+                                    style: 1,
+                                    custom_id: "notes",
+                                    placeholder: "text has to be less than 4000 characters"
+                                }
+                            },
+                        ]
+                    },
+                });
+            }
+        }
+        else if (message.type === 5) {
+            const customId = message.data.custom_id;
+            if (customId.startsWith("rate_")) {
+                response.status(200).send({
+                    type: 4,
+                    data: {
+                        content: `${message.data.components}`,
+                        flags: 64
+                    },
+                });
+            }
         }
         else {
             console.error("Unknown Type");
