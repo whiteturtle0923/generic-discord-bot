@@ -2,6 +2,8 @@ import { InteractionResponseFlags, InteractionResponseType, InteractionType, ver
 import getRawBody from "raw-body";
 import { DatabaseSync } from "node:sqlite";
 import { setTimeout } from "node:timers/promises";
+import { waitUntil } from "@vercel/functions";
+import fetch from "node-fetch";
 function insertShort(id, date, submitter, dbType = 0) {
     let db;
     if (dbType === 0) {
@@ -135,8 +137,24 @@ export default async (request, response) => {
                     else {
                         url = url.replace(/\?s.+$/, "");
                         url = url.replace(/\&.+$/, "");
-                        console.log("0");
-                        await setTimeout(1000);
+                        console.log(1);
+                        waitUntil(setTimeout(5000).then(async () => {
+                            console.log(2);
+                            const replyResponse = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}`, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": `Bot ${process.env.TOKEN}`,
+                                    "User-Agent": "GenericBot (https://github.com/discord/discord-example-app, 1.0.0)"
+                                },
+                                body: JSON.stringify({
+                                    content: `${url}`
+                                })
+                            });
+                            console.log(replyResponse.text());
+                            console.log(3);
+                        }));
+                        console.log(4);
                         response.status(200).send({
                             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                             data: {
@@ -160,9 +178,6 @@ export default async (request, response) => {
                                 ]
                             },
                         });
-                        console.log("1");
-                        await setTimeout(1000);
-                        console.log("2");
                         break;
                     }
                     response.status(200).send({
