@@ -1,6 +1,7 @@
 import { InteractionResponseFlags, InteractionResponseType, InteractionType, verifyKey } from "discord-interactions";
 import getRawBody from "raw-body";
 import { DatabaseSync } from "node:sqlite";
+import { setTimeout } from "node:timers/promises";
 function insertShort(id, date, submitter, dbType = 0) {
     let db;
     if (dbType === 0) {
@@ -157,11 +158,8 @@ export default async (request, response) => {
                                 ]
                             },
                         });
-                        const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
                         console.log("1");
-                        wait(10 * 1000).then(() => {
-                            console.log("3");
-                        });
+                        await setTimeout(1000);
                         console.log("2");
                         break;
                     }
