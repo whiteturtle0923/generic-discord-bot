@@ -137,10 +137,8 @@ export default async (request, response) => {
                     else {
                         url = url.replace(/\?s.+$/, "");
                         url = url.replace(/\&.+$/, "");
-                        console.log(1);
-                        waitUntil(setTimeout(5000).then(async () => {
-                            console.log(2);
-                            const replyResponse = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}`, {
+                        waitUntil(setTimeout(3000).then(async () => {
+                            const replyResponse = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}?with_components=true`, {
                                 method: "POST",
                                 headers: {
                                     "Content-Type": "application/json",
@@ -148,34 +146,28 @@ export default async (request, response) => {
                                     "User-Agent": "GenericBot (https://github.com/discord/discord-example-app, 1.0.0)"
                                 },
                                 body: JSON.stringify({
-                                    content: `${url}`
+                                    flags: 32768,
+                                    components: [
+                                        {
+                                            type: 1,
+                                            components: [
+                                                {
+                                                    type: 2,
+                                                    style: 1,
+                                                    label: "Rate!",
+                                                    custom_id: `rate_${url}`,
+                                                }
+                                            ]
+                                        }
+                                    ]
                                 })
                             });
-                            console.log(replyResponse.text());
-                            console.log(3);
                         }));
-                        console.log(4);
                         response.status(200).send({
                             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                             data: {
                                 flags: 32768,
-                                components: [
-                                    {
-                                        type: 10,
-                                        content: `Submission by <@${user.id}>: ${url}`,
-                                    },
-                                    {
-                                        type: 1,
-                                        components: [
-                                            {
-                                                type: 2,
-                                                style: 1,
-                                                label: "Rate!",
-                                                custom_id: `rate_${url}`,
-                                            }
-                                        ]
-                                    }
-                                ]
+                                content: `Submission by <@${user.id}>: ${url}`
                             },
                         });
                         break;
