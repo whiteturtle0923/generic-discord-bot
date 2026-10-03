@@ -158,9 +158,25 @@ export default async (request, response) => {
                                 ]
                             },
                         });
+                        const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+                        console.log("1");
+                        wait(10 * 1000).then(async () => {
+                            const replyResponse = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}`, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": `Bot ${process.env.TOKEN}`,
+                                    "User-Agent": "GenericBot (https://github.com/discord/discord-example-app, 1.0.0)"
+                                },
+                                body: JSON.stringify({
+                                    content: `${url}`
+                                })
+                            });
+                            console.log(replyResponse.text());
+                        });
+                        console.log("2");
                         break;
                     }
-                    console.log(3);
                     response.status(200).send({
                         type: 4,
                         data: {
@@ -168,23 +184,6 @@ export default async (request, response) => {
                             flags: 64,
                         },
                     });
-                    const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-                    console.log("1");
-                    wait(10 * 1000).then(async () => {
-                        const replyResponse = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}`, {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Authorization": `Bot ${process.env.TOKEN}`,
-                                "User-Agent": "GenericBot (https://github.com/discord/discord-example-app, 1.0.0)"
-                            },
-                            body: JSON.stringify({
-                                content: `${url}`
-                            })
-                        });
-                        console.log(replyResponse.text());
-                    });
-                    console.log("2");
                     break;
                 default:
                     console.error("Unknown Command");
