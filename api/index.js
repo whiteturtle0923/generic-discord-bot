@@ -168,6 +168,7 @@ export default async (request, response) => {
                         },
                     });
                     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+                    console.log("1");
                     wait(10 * 1000).then(async () => {
                         const replyResponse = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}`, {
                             method: "POST",
@@ -182,6 +183,7 @@ export default async (request, response) => {
                         });
                         console.log(replyResponse.text());
                     });
+                    console.log("2");
                     break;
                 default:
                     console.error("Unknown Command");
