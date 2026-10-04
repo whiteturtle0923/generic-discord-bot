@@ -128,8 +128,8 @@ export default async (request, response) => {
                     const user = message.member.user;
                     let url = message.data.options[0].value;
                     let errorText = "";
-                    if (message.channel.name !== "") {
-                        errorText = `${message.channel.name}`;
+                    if (message.channel.name !== "bot-test" && message.channel.name !== "the-shorts-dump") {
+                        errorText = `Shorts Bot can only be used in \#the-shorts-dump`;
                     }
                     else if (typeof url !== "string") {
                         errorText = "URL must be text";
