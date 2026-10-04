@@ -96,8 +96,6 @@ export const SUBMIT_COMMAND = {
     ]
 };
 const INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${process.env.APPLICATION_ID}&scope=applications.commands`;
-insertShort("qwerty", Date.now(), "whiteturtle0923");
-console.log(JSON.stringify(readShort("Qwerty")));
 export default async (request, response) => {
     if (request.method === "POST") {
         const signature = request.headers["x-signature-ed25519"];
@@ -118,6 +116,8 @@ export default async (request, response) => {
         else if (message.type === InteractionType.APPLICATION_COMMAND) {
             switch (message.data.name.toLowerCase()) {
                 case INVITE_COMMAND.name.toLowerCase():
+                    insertShort("qwerty", Date.now(), "whiteturtle0923");
+                    console.log(JSON.stringify(readShort("qwerty")));
                     response.status(200).send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
