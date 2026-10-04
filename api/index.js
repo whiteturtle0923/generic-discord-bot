@@ -129,7 +129,7 @@ export default async (request, response) => {
                     let url = message.data.options[0].value;
                     let errorText = "";
                     if (message.channel.name !== "bot-test" && message.channel.name !== "the-shorts-dump") {
-                        errorText = `Shorts Bot can only be used in \#the-shorts-dump`;
+                        errorText = `Shorts Bot can only be used in [\#the-shorts-dump](https://discord.com/channels/1530650371981054112/1550699488052645908)`;
                     }
                     else if (typeof url !== "string") {
                         errorText = "URL must be text";
