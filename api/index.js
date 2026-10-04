@@ -228,11 +228,12 @@ export default async (request, response) => {
             if (customId.startsWith("rate_")) {
                 const components = message.data.components;
                 const rating = parseInt(components[0].component.value);
+                const notes = components[1].component.value;
                 if (rating >= 0 && rating <= 100) {
                     response.status(200).send({
                         type: 4,
                         data: {
-                            content: `Thanks for rating this short!\nYour rating was: ${rating} out of 100, with notes "${components[1].component.value}"`,
+                            content: `Thanks for rating this short!\nYour rating was: ${rating} out of 100` + (notes ? `, with notes "${notes}"` : ""),
                             flags: 64
                         },
                     });
