@@ -128,7 +128,10 @@ export default async (request, response) => {
                     const user = message.member.user;
                     let url = message.data.options[0].value;
                     let errorText = "";
-                    if (typeof url !== "string") {
+                    if (message.channel.name !== "") {
+                        errorText = `${message.channel.name}`;
+                    }
+                    else if (typeof url !== "string") {
                         errorText = "URL must be text";
                     }
                     else if (!url.match(/.+youtube\.com\/shorts\/.+/)) {
@@ -211,6 +214,7 @@ export default async (request, response) => {
                                     type: 4,
                                     style: 2,
                                     custom_id: "notes",
+                                    required: false,
                                     placeholder: "text has to be less than 4000 characters"
                                 }
                             },
