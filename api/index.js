@@ -81,40 +81,44 @@ export default async (request, response) => {
                         url = url.replace(/\?s.+$/, "");
                         url = url.replace(/\&.+$/, "");
                         const id = url.match(/(?<=shorts\/).+/)[0];
-                        waitUntil(setTimeout(3000).then(async () => {
-                            const replyResponse = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}?with_components=true`, {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    "Authorization": `Bot ${process.env.TOKEN}`,
-                                    "User-Agent": "GenericBot (https://github.com/discord/discord-example-app, 1.0.0)"
-                                },
-                                body: JSON.stringify({
-                                    flags: 32768,
-                                    components: [
-                                        {
-                                            type: 1,
-                                            components: [
-                                                {
-                                                    type: 2,
-                                                    style: 1,
-                                                    label: "Rate!",
-                                                    custom_id: `rate_${url}`,
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                })
-                            });
-                        }));
                         const checkForDupe = await sql `SELECT * FROM shorts WHERE id = ${id}`;
-                        response.status(200).send({
-                            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                            data: {
-                                content: `Submission by <@${user.id}>: ${url}, ${JSON.stringify(checkForDupe)}`
-                            },
-                        });
-                        break;
+                        if (checkForDupe.length === 0) {
+                            await sql `INSERT INTO shorts(id, date, submitter, rates) VALUES (${id}, ${Date.now()}, ${user.username}, '[]');`;
+                            waitUntil(setTimeout(3000).then(async () => {
+                                const replyResponse = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}?with_components=true`, {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                        "Authorization": `Bot ${process.env.TOKEN}`,
+                                        "User-Agent": "GenericBot (https://github.com/discord/discord-example-app, 1.0.0)"
+                                    },
+                                    body: JSON.stringify({
+                                        flags: 32768,
+                                        components: [
+                                            {
+                                                type: 1,
+                                                components: [
+                                                    {
+                                                        type: 2,
+                                                        style: 1,
+                                                        label: "Rate!",
+                                                        custom_id: `rate_${url}`,
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    })
+                                });
+                            }));
+                            response.status(200).send({
+                                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                                data: {
+                                    content: `Submission by <@${user.id}>: ${url}, ${JSON.stringify(checkForDupe)}`
+                                },
+                            });
+                            break;
+                        }
+                        errorText = `Short is a duplicate of https://youtube.com/shorts/${id}`;
                     }
                     response.status(200).send({
                         type: 4,
