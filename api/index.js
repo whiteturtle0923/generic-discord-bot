@@ -85,7 +85,6 @@ export default async (request, response) => {
                         if (dupeURL.length === 0) {
                             waitUntil(setTimeout(3000).then(async () => {
                                 const sentMessage = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}/messages/@original`);
-                                await sql `INSERT INTO shorts(id, date, submitter, rates, messageURL) VALUES (${id}, ${Date.now()}, ${user.username}, '[]', CAST(${message.guild_id}/${message.channel_id}/${(await sentMessage.json()).id} AS VARCHAR(65)));`;
                                 await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}?with_components=true`, {
                                     method: "POST",
                                     headers: {
@@ -102,7 +101,7 @@ export default async (request, response) => {
                                                     {
                                                         type: 2,
                                                         style: 1,
-                                                        label: "Rate!",
+                                                        label: "Rate!" + `${message.guild_id}/${message.channel_id}/${(await sentMessage.json()).id}`,
                                                         custom_id: `rate_${url}`,
                                                     }
                                                 ]
