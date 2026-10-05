@@ -81,11 +81,12 @@ export default async (request, response) => {
                         url = url.replace(/\?s.+$/, "");
                         url = url.replace(/\&.+$/, "");
                         const id = url.match(/(?<=shorts\/).+/)[0];
-                        const checkForDupe = await sql `SELECT * FROM shorts WHERE id = ${id}`;
-                        if (checkForDupe.length === 0) {
-                            await sql `INSERT INTO shorts(id, date, submitter, rates) VALUES (${id}, ${Date.now()}, ${user.username}, '[]');`;
+                        const dupeURL = await sql `SELECT messageURL FROM shorts WHERE id = ${id}`;
+                        if (dupeURL.length === 0) {
                             waitUntil(setTimeout(3000).then(async () => {
-                                const replyResponse = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}?with_components=true`, {
+                                const sentMessage = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}/messages/@original`);
+                                await sql `INSERT INTO shorts(id, date, submitter, rates, messageURL) VALUES (${id}, ${Date.now()}, ${user.username}, '[]', ${message.guild_id}/${message.channel_id}/${(await sentMessage.json()).id});`;
+                                await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}?with_components=true`, {
                                     method: "POST",
                                     headers: {
                                         "Content-Type": "application/json",
@@ -113,12 +114,12 @@ export default async (request, response) => {
                             response.status(200).send({
                                 type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                                 data: {
-                                    content: `Submission by <@${user.id}>: ${url}, ${JSON.stringify(checkForDupe)}`
+                                    content: `Submission by <@${user.id}>: ${url}`
                                 },
                             });
                             break;
                         }
-                        errorText = `Short is a duplicate of https://youtube.com/shorts/${id}`;
+                        errorText = `Short is a duplicate of https://discord.com/channels/${dupeURL}`;
                     }
                     response.status(200).send({
                         type: 4,
