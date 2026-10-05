@@ -80,6 +80,7 @@ export default async (request, response) => {
                     else {
                         url = url.replace(/\?s.+$/, "");
                         url = url.replace(/\&.+$/, "");
+                        const id = url.match(/(?<=shorts\/).+/)[0];
                         waitUntil(setTimeout(3000).then(async () => {
                             const replyResponse = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}?with_components=true`, {
                                 method: "POST",
@@ -106,10 +107,11 @@ export default async (request, response) => {
                                 })
                             });
                         }));
+                        const checkForDupe = await sql `SELECT * FROM shorts WHERE id = ${id}`;
                         response.status(200).send({
                             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                             data: {
-                                content: `Submission by <@${user.id}>: ${url}`
+                                content: `Submission by <@${user.id}>: ${url}, ${JSON.stringify(checkForDupe)}`
                             },
                         });
                         break;
