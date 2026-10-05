@@ -1,84 +1,10 @@
 import { InteractionResponseFlags, InteractionResponseType, InteractionType, verifyKey } from "discord-interactions";
 import getRawBody from "raw-body";
-import { DatabaseSync } from "node:sqlite";
 import { setTimeout } from "node:timers/promises";
 import { waitUntil } from "@vercel/functions";
 import fetch from "node-fetch";
-function insertShort(id, date, submitter, dbType = 0) {
-    let db;
-    if (dbType === 0) {
-        db = new DatabaseSync("./dev.sqlite");
-    }
-    else if (dbType === 1) {
-        db = new DatabaseSync("./prod.sqlite");
-    }
-    else {
-        console.error("invalid dbType");
-        return;
-    }
-    db.exec(`
-        create table if not exists shorts (
-                id text primary key, 
-                date integer not null, 
-                submitter text not null, 
-                rates text not null    
-        )`);
-    const checkForDupeStmt = db.prepare(`SELECT * FROM shorts WHERE id = ?`);
-    const exists = checkForDupeStmt.get(id);
-    if (exists) {
-        console.error("duplicate short");
-        return;
-    }
-    const stmt = db.prepare(`INSERT INTO shorts (id, date, submitter, rates) 
-        VALUES (?, ?, ?, ?)`);
-    const result = stmt.run(id, date, submitter, JSON.stringify([]));
-    if (db)
-        db.close();
-}
-function readShort(id, dbType = 0) {
-    let db;
-    if (dbType === 0) {
-        db = new DatabaseSync("./dev.sqlite");
-    }
-    else if (dbType === 1) {
-        db = new DatabaseSync("./prod.sqlite");
-    }
-    else {
-        console.error("invalid dbType");
-        return;
-    }
-    const readStmt = db.prepare(`SELECT * FROM shorts WHERE id = ?`);
-    const results = readStmt.get(id);
-    if (db)
-        db.close();
-    return results;
-}
-function updateShort(id, dbType, ...rates) {
-    let db;
-    if (dbType === 0) {
-        db = new DatabaseSync("./dev.sqlite");
-    }
-    else if (dbType === 1) {
-        db = new DatabaseSync("./prod.sqlite");
-    }
-    else {
-        console.error("invalid dbType");
-        return;
-    }
-    const stmt = db.prepare(`UPDATE shorts
-        SET rates = ?
-        WHERE id = ?`);
-    const existingData = readShort(id, dbType);
-    if (!existingData) {
-        console.error("no short to update");
-        return;
-    }
-    const newData = JSON.parse(existingData.rates);
-    newData.push(...rates);
-    const result = stmt.run(JSON.stringify(newData), id);
-    if (db)
-        db.close();
-}
+import { neon } from "@neondatabase/serverless";
+const sql = neon(`${process.env.DATABASE_URL}`);
 export const INVITE_COMMAND = {
     name: "invite",
     description: "Get an invite link to add the bot to your server",
@@ -116,8 +42,7 @@ export default async (request, response) => {
         else if (message.type === InteractionType.APPLICATION_COMMAND) {
             switch (message.data.name.toLowerCase()) {
                 case INVITE_COMMAND.name.toLowerCase():
-                    insertShort("qwerty", Date.now(), "whiteturtle0923");
-                    console.log(JSON.stringify(readShort("qwerty")));
+                    console.log(JSON.stringify(await sql `SELECT * FROM shorts`));
                     response.status(200).send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
