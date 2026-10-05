@@ -9,6 +9,10 @@ export const INVITE_COMMAND = {
     name: "invite",
     description: "Get an invite link to add the bot to your server",
 };
+export const READ_COMMAND = {
+    name: "read",
+    description: "Get all the contents of the rating database",
+};
 export const SUBMIT_COMMAND = {
     name: "submit",
     description: "Submit a new short",
@@ -42,11 +46,20 @@ export default async (request, response) => {
         else if (message.type === InteractionType.APPLICATION_COMMAND) {
             switch (message.data.name.toLowerCase()) {
                 case INVITE_COMMAND.name.toLowerCase():
-                    console.log(JSON.stringify(await sql `SELECT * FROM shorts`));
                     response.status(200).send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
                             content: INVITE_URL,
+                            flags: InteractionResponseFlags.EPHEMERAL,
+                        },
+                    });
+                    break;
+                case READ_COMMAND.name.toLowerCase():
+                    const results = await sql `SELECT * FROM shorts`;
+                    response.status(200).send({
+                        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                        data: {
+                            content: JSON.stringify(results),
                             flags: InteractionResponseFlags.EPHEMERAL,
                         },
                     });
