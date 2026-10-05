@@ -81,11 +81,11 @@ export default async (request, response) => {
                         url = url.replace(/\?s.+$/, "");
                         url = url.replace(/\&.+$/, "");
                         const id = url.match(/(?<=shorts\/).+/)[0];
-                        const dupeURL = await sql `SELECT messageURL FROM shorts WHERE id = ${id}`;
+                        const dupeURL = await sql `SELECT messageurl FROM shorts WHERE id = ${id}`;
                         if (dupeURL.length === 0) {
                             waitUntil(setTimeout(3000).then(async () => {
                                 const sentMessage = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}/messages/@original`);
-                                await sql `INSERT INTO shorts(id, date, submitter, rates, messageURL) VALUES (${id}, ${Date.now()}, ${user.username}, '[]', ${message.guild_id}/${message.channel_id}/${(await sentMessage.json()).id});`;
+                                await sql `INSERT INTO shorts(id, date, submitter, rates, messageURL) VALUES (${id}, ${Date.now()}, ${user.username}, '[]', CAST(${message.guild_id}/${message.channel_id}/${(await sentMessage.json()).id} AS VARCHAR(65)));`;
                                 await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}?with_components=true`, {
                                     method: "POST",
                                     headers: {
