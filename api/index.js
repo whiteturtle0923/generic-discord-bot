@@ -197,7 +197,7 @@ export default async (request, response) => {
                         response.status(200).send({
                             type: 4,
                             data: {
-                                content: "You have already rated this short (this shows for every sql error but there shouldn't be other errors occuring lol, if this shows when it shouldnt lmk)",
+                                content: "You have already rated this short\n-# (this shows for every sql error but there shouldn't be other errors occuring lol, if this shows when it shouldnt lmk)",
                                 flags: 64
                             }
                         });
