@@ -63,7 +63,8 @@ export default async (request, response) => {
                     });
                     break;
                 case GET_SHORTS_COMMAND.name.toLowerCase():
-                    const results = await sql `SELECT * FROM shorts`;
+                    const username = message.data.options[0].value;
+                    const results = await sql `SELECT id FROM shorts WHERE username = ${username}`;
                     response.status(200).send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
@@ -189,11 +190,22 @@ export default async (request, response) => {
                 const rating = parseInt(components[0].component.value);
                 const notes = components[1].component.value;
                 if (rating >= 0 && rating <= 100) {
-                    await sql `INSERT INTO ratings(video_id, username, rating, timestamp, notes) VALUES (${video_id}, ${user.username}, ${rating}, NOW(), ${notes})`;
+                    try {
+                        await sql `INSERT INTO ratings(video_id, username, rating, timestamp, notes) VALUES (${video_id}, ${user.username}, ${rating}, NOW(), ${notes})`;
+                    }
+                    catch {
+                        response.status(200).send({
+                            type: 4,
+                            data: {
+                                content: "You have already rated this short (this shows for every sql error but there shouldn't be other errors occuring lol, if this shows when it shouldnt lmk)",
+                                flags: 64
+                            }
+                        });
+                    }
                     response.status(200).send({
                         type: 4,
                         data: {
-                            content: `Thanks for rating this short!\nYour rating was: ${rating} out of 100` + (notes ? `, with notes "${notes}"` : ""),
+                            content: `Thank you for rating this short!\nYour rating was: ${rating} out of 100` + (notes ? `, with notes "${notes}"` : ""),
                             flags: 64
                         },
                     });
