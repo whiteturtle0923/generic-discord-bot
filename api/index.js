@@ -9,9 +9,17 @@ export const INVITE_COMMAND = {
     name: "invite",
     description: "Get an invite link to add the bot to your server",
 };
-export const READ_COMMAND = {
-    name: "read",
-    description: "Get all the contents of the rating database",
+export const GET_SHORTS_COMMAND = {
+    name: "shorts",
+    description: "Get the last 25 shorts submitted by someone, with a button to check ratings",
+    options: [
+        {
+            name: "username",
+            description: "The username of the submitter, leave blank to check for last 25 shorts submitted by anyone",
+            type: 3,
+            required: false
+        }
+    ]
 };
 export const SUBMIT_COMMAND = {
     name: "submit",
@@ -54,7 +62,7 @@ export default async (request, response) => {
                         },
                     });
                     break;
-                case READ_COMMAND.name.toLowerCase():
+                case GET_SHORTS_COMMAND.name.toLowerCase():
                     const results = await sql `SELECT * FROM shorts`;
                     response.status(200).send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -69,7 +77,7 @@ export default async (request, response) => {
                     let url = message.data.options[0].value;
                     let errorText = "";
                     if (message.channel.name !== "bot-test" && message.channel.name !== "the-shorts-dump") {
-                        errorText = `Shorts Bot can only be used in [\#the-shorts-dump](https://discord.com/channels/1530650371981054112/1550699488052645908)`;
+                        errorText = `Shorts Bot can only be used in [\# the-shorts-dump](https://discord.com/channels/1530650371981054112/1550699488052645908)`;
                     }
                     else if (typeof url !== "string") {
                         errorText = "URL must be text";
@@ -85,6 +93,8 @@ export default async (request, response) => {
                         if (dupeURL.length === 0) {
                             waitUntil(setTimeout(3000).then(async () => {
                                 const sentMessage = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}/messages/@original`);
+                                const messageURL = `${message.guild_id}/${message.channel_id}/${(await sentMessage.json()).id}`;
+                                await sql `INSERT INTO shorts(id, timestamp, submitter, messageURL) VALUES (${id}, now, ${user.username}, ${messageURL});`;
                                 await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}?with_components=true`, {
                                     method: "POST",
                                     headers: {
