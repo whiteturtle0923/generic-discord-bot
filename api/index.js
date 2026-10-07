@@ -113,7 +113,7 @@ export default async (request, response) => {
                                                         type: 2,
                                                         style: 1,
                                                         label: "Rate!",
-                                                        custom_id: `rate_${url}`,
+                                                        custom_id: `rate_${id}`,
                                                     }
                                                 ]
                                             }
@@ -151,7 +151,7 @@ export default async (request, response) => {
                 response.status(200).send({
                     type: 9,
                     data: {
-                        custom_id: "rate_modal",
+                        custom_id: customId,
                         title: "Rate this short!",
                         components: [
                             {
@@ -183,10 +183,13 @@ export default async (request, response) => {
         else if (message.type === 5) {
             const customId = message.data.custom_id;
             if (customId.startsWith("rate_")) {
+                const video_id = customId.match(/(?<=rate_).+/);
+                const user = message.member.user;
                 const components = message.data.components;
                 const rating = parseInt(components[0].component.value);
                 const notes = components[1].component.value;
                 if (rating >= 0 && rating <= 100) {
+                    await sql `INSERT INTO ratings(video_id, username, rating, timestamp, notes) VALUES (${video_id}, ${user.username}, ${rating}, NOW(), ${notes})`;
                     response.status(200).send({
                         type: 4,
                         data: {
