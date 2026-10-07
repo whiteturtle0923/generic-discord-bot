@@ -129,7 +129,7 @@ export default async (request, response) => {
                             });
                             break;
                         }
-                        errorText = `Short is a duplicate of https://discord.com/channels/${dupeURL}`;
+                        errorText = `Short is a duplicate of https://discord.com/channels/${dupeURL[0]}`;
                     }
                     response.status(200).send({
                         type: 4,
