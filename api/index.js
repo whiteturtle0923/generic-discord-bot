@@ -94,7 +94,7 @@ export default async (request, response) => {
                             waitUntil(setTimeout(3000).then(async () => {
                                 const sentMessage = await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}/messages/@original`);
                                 const messageURL = `${message.guild_id}/${message.channel_id}/${(await sentMessage.json()).id}`;
-                                await sql `INSERT INTO shorts(id, timestamp, submitter, messageURL) VALUES (${id}, now, ${user.username}, ${messageURL});`;
+                                await sql `INSERT INTO shorts(id, timestamp, submitter, messageURL) VALUES (${id}, NOW(), ${user.username}, ${messageURL});`;
                                 await fetch(`https://discord.com/api/webhooks/${process.env.APPLICATION_ID}/${message.token}?with_components=true`, {
                                     method: "POST",
                                     headers: {
