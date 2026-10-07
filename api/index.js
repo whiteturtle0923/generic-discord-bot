@@ -183,13 +183,13 @@ export default async (request, response) => {
         else if (message.type === 5) {
             const customId = message.data.custom_id;
             if (customId.startsWith("rate_")) {
-                const video_id = customId.match(/(?<=rate_).+/);
-                console.log(video_id);
+                const video_id = customId.match(/(?<=rate_).+/)[0];
                 const user = message.member.user;
                 const components = message.data.components;
                 const rating = parseInt(components[0].component.value);
                 const notes = components[1].component.value;
                 if (rating >= 0 && rating <= 100) {
+                    await sql `INSERT INTO ratings(video_id, username, rating, timestamp, notes) VALUES (${video_id}, ${user.username}, ${rating}, NOW(), ${notes})`;
                     response.status(200).send({
                         type: 4,
                         data: {
@@ -197,6 +197,7 @@ export default async (request, response) => {
                             flags: 64
                         },
                     });
+                    return;
                 }
                 response.status(200).send({
                     type: 4,
