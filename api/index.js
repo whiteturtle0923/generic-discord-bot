@@ -84,8 +84,13 @@ export default async (request, response) => {
                     const username = message.data.options[0].value;
                     const results = await sql `SELECT id, messageurl FROM shorts${username ? ` WHERE submitter = ${username}` : ""} ORDER BY timestamp LIMIT 10`;
                     const messageComponents = [];
-                    for (const short of results) {
-                        messageComponents.push(generateShortEntry(short.id, short.messageurl));
+                    try {
+                        for (const short of results) {
+                            messageComponents.push(generateShortEntry(short.id, short.messageurl));
+                        }
+                    }
+                    catch (e) {
+                        console.error(e);
                     }
                     response.status(200).send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
