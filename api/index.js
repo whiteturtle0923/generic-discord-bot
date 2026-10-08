@@ -93,11 +93,11 @@ export default async (request, response) => {
                     catch (e) {
                         console.error(e);
                     }
-                    console.log(JSON.stringify(messageComponents));
+                    console.log(messageComponents.toString());
                     response.status(200).send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
-                            components: JSON.stringify(messageComponents),
+                            components: messageComponents.toString(),
                             flags: 32768,
                         },
                     });
