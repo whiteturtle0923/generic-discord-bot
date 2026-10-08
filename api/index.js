@@ -34,6 +34,24 @@ export const SUBMIT_COMMAND = {
     ]
 };
 const INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${process.env.APPLICATION_ID}&scope=applications.commands`;
+function generateShortEntry(id, url) {
+    const content = `[link](https://discord.com/channels/${url})`;
+    return {
+        type: 9,
+        components: [
+            {
+                type: 10,
+                content: content
+            }
+        ],
+        accessory: {
+            type: 2,
+            style: 1,
+            label: "Get ratings",
+            custom_id: "ratings_get_" + id
+        }
+    };
+}
 export default async (request, response) => {
     if (request.method === "POST") {
         const signature = request.headers["x-signature-ed25519"];
@@ -64,12 +82,16 @@ export default async (request, response) => {
                     break;
                 case GET_SHORTS_COMMAND.name.toLowerCase():
                     const username = message.data.options[0].value;
-                    const results = await sql `SELECT id FROM shorts WHERE username = ${username}`;
+                    const results = await sql `SELECT id FROM shorts WHERE username = ${username} ORDER BY timestamp LIMIT 10`;
+                    const messageComponents = [];
+                    for (const short of results) {
+                        messageComponents.push(generateShortEntry(short.id, short.messageurl));
+                    }
                     response.status(200).send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
-                            content: JSON.stringify(results),
-                            flags: InteractionResponseFlags.EPHEMERAL,
+                            components: JSON.stringify(messageComponents),
+                            flags: InteractionResponseFlags.EPHEMERAL | 32768,
                         },
                     });
                     break;
@@ -215,6 +237,15 @@ export default async (request, response) => {
                     type: 4,
                     data: {
                         content: "Invalid rating, please resubmit",
+                        flags: 64
+                    }
+                });
+            }
+            else if (customId.startsWith("ratings_get_")) {
+                response.status(200).send({
+                    type: 4,
+                    data: {
+                        content: "test",
                         flags: 64
                     }
                 });
