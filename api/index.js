@@ -82,7 +82,7 @@ export default async (request, response) => {
                     break;
                 case GET_SHORTS_COMMAND.name.toLowerCase():
                     const username = message.data.options[0].value;
-                    const results = await sql `SELECT id FROM shorts WHERE username = ${username} ORDER BY timestamp LIMIT 10`;
+                    const results = await sql `SELECT id, messageurl FROM shorts${username ? ` WHERE submitter = ${username}` : ""} ORDER BY timestamp LIMIT 10`;
                     const messageComponents = [];
                     for (const short of results) {
                         messageComponents.push(generateShortEntry(short.id, short.messageurl));
