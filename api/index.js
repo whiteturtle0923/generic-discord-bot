@@ -93,11 +93,12 @@ export default async (request, response) => {
                     catch (e) {
                         console.error(e);
                     }
+                    console.log(JSON.stringify(messageComponents));
                     response.status(200).send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
                             components: JSON.stringify(messageComponents),
-                            flags: InteractionResponseFlags.EPHEMERAL | 32768,
+                            flags: 32768,
                         },
                     });
                     break;
