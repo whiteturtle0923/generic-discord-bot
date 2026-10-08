@@ -97,7 +97,7 @@ export default async (request, response) => {
                     response.status(200).send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
-                            components: messageComponents.toString(),
+                            components: messageComponents,
                             flags: 32768,
                         },
                     });
