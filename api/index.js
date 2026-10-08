@@ -82,8 +82,8 @@ export default async (request, response) => {
                     break;
                 case GET_SHORTS_COMMAND.name.toLowerCase():
                     const options = message.data.options;
-                    console.log(`SELECT id, messageurl FROM shorts${options ? ` WHERE submitter = ${options[0].value}` : ""} ORDER BY timestamp LIMIT 10`);
-                    const results = await sql `SELECT id, messageurl FROM shorts${options ? ` WHERE submitter = ${options[0].value}` : ""} ORDER BY timestamp LIMIT 10`;
+                    console.log(`SELECT id, messageurl FROM shorts${options ? ` WHERE submitter = '${options[0].value}'` : ""} ORDER BY timestamp LIMIT 10`);
+                    const results = await sql `SELECT id, messageurl FROM shorts ORDER BY timestamp LIMIT 10`;
                     const messageComponents = [];
                     try {
                         for (const short of results) {
