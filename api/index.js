@@ -190,7 +190,7 @@ export default async (request, response) => {
             else if (customId.startsWith("ratings_get_")) {
                 const video_id = customId.match(/(?<=ratings_get_).+/)[0];
                 const ratings = await sql `SELECT username, rating, notes FROM ratings WHERE video_id = ${video_id}`;
-                let content = "Ratings\n";
+                let content = "Ratings:\n";
                 for (const instance of ratings) {
                     const notes = instance.notes;
                     content += `@${instance.username}: ${instance.rating}/100${(notes ? `, with notes "${notes}"` : "")}`;
