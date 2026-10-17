@@ -187,16 +187,24 @@ export default async (request, response) => {
                     },
                 });
             }
+            else if (customId.startsWith("ratings_get_")) {
+                const video_id = customId.match(/(?<=ratings_get_).+/)[0];
+                const ratings = await sql `SELECT username, rating, notes FROM ratings WHERE video_id = ${video_id}`;
+                let content = "Ratings\n";
+                for (const instance of ratings) {
+                    const notes = instance.notes;
+                    content += `@${instance.username}: ${instance.rating}/100; ${(notes ? `, with notes "${notes}"` : "")}`;
+                }
+                response.status(200).send({
+                    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    data: {
+                        content: content,
+                        flags: 64
+                    }
+                });
+            }
         }
         else if (message.type === 5) {
-            response.status(200).send({
-                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                data: {
-                    content: message.toString(),
-                    flags: 64
-                }
-            });
-            console.log(message.data);
             const customId = message.data.custom_id;
             if (customId.startsWith("rate_")) {
                 const video_id = customId.match(/(?<=rate_).+/)[0];
@@ -245,16 +253,6 @@ export default async (request, response) => {
                     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                     data: {
                         content: "Invalid rating, please resubmit",
-                        flags: 64
-                    }
-                });
-            }
-            else if (customId.startsWith("ratings_get_")) {
-                console.log("test");
-                response.status(200).send({
-                    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                    data: {
-                        content: "test",
                         flags: 64
                     }
                 });
