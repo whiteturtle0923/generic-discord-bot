@@ -70,7 +70,7 @@ export default async (request, response) => {
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
                             components: content,
-                            flags: 32768,
+                            flags: 64
                         },
                     });
                     break;
@@ -190,6 +190,7 @@ export default async (request, response) => {
         }
         else if (message.type === 5) {
             const customId = message.data.custom_id;
+            console.log(customId);
             if (customId.startsWith("rate_")) {
                 const video_id = customId.match(/(?<=rate_).+/)[0];
                 const user = message.member.user;
@@ -199,14 +200,6 @@ export default async (request, response) => {
                 if (rating >= 0 && rating <= 100) {
                     const results = await sql `SELECT 1 FROM shorts WHERE id = ${video_id} AND submitter = ${user.username}`;
                     if (results.length > 0) {
-                        response.status(200).send({
-                            type: 4,
-                            data: {
-                                content: "You can't rate a short that you submitted",
-                                flags: 64
-                            }
-                        });
-                        return;
                     }
                     try {
                         await sql `INSERT INTO ratings(video_id, username, rating, timestamp, notes) VALUES (${video_id}, ${user.username}, ${rating}, NOW(), ${notes})`;
@@ -214,7 +207,7 @@ export default async (request, response) => {
                     catch (e) {
                         console.log(e);
                         response.status(200).send({
-                            type: 4,
+                            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                             data: {
                                 content: "You have already rated this short\n-# (this shows for every sql error but there shouldn't be other errors occuring lol, if this shows when it shouldnt lmk)",
                                 flags: 64
@@ -223,7 +216,7 @@ export default async (request, response) => {
                         return;
                     }
                     response.status(200).send({
-                        type: 4,
+                        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
                             content: `Thank you for rating this short!\nYour rating was: ${rating} out of 100` + (notes ? `, with notes "${notes}"` : ""),
                             flags: 64
@@ -232,7 +225,7 @@ export default async (request, response) => {
                     return;
                 }
                 response.status(200).send({
-                    type: 4,
+                    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                     data: {
                         content: "Invalid rating, please resubmit",
                         flags: 64
@@ -240,8 +233,9 @@ export default async (request, response) => {
                 });
             }
             else if (customId.startsWith("ratings_get_")) {
+                console.log("test");
                 response.status(200).send({
-                    type: 4,
+                    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                     data: {
                         content: "test",
                         flags: 64
