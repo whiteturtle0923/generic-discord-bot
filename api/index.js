@@ -193,7 +193,7 @@ export default async (request, response) => {
                 let content = "Ratings\n";
                 for (const instance of ratings) {
                     const notes = instance.notes;
-                    content += `@${instance.username}: ${instance.rating}/100; ${(notes ? `, with notes "${notes}"` : "")}`;
+                    content += `@${instance.username}: ${instance.rating}/100${(notes ? `, with notes "${notes}"` : "")}`;
                 }
                 response.status(200).send({
                     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
