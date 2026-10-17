@@ -189,6 +189,13 @@ export default async (request, response) => {
             }
         }
         else if (message.type === 5) {
+            response.status(200).send({
+                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                data: {
+                    content: message.toString(),
+                    flags: 64
+                }
+            });
             console.log(message.data);
             const customId = message.data.custom_id;
             if (customId.startsWith("rate_")) {
