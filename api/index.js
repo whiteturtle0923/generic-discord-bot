@@ -3,7 +3,7 @@ import getRawBody from "raw-body";
 import { setTimeout } from "node:timers/promises";
 import { waitUntil } from "@vercel/functions";
 import fetch from "node-fetch";
-import { neon } from "@neondatabase/serverless";
+import { neon, NeonDbError } from "@neondatabase/serverless";
 const sql = neon(`${process.env.DATABASE_URL}`);
 export const INVITE_COMMAND = {
     name: "invite",
@@ -69,7 +69,7 @@ export default async (request, response) => {
                     response.status(200).send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
-                            components: content,
+                            content: content,
                             flags: 64
                         },
                     });
@@ -189,8 +189,8 @@ export default async (request, response) => {
             }
         }
         else if (message.type === 5) {
+            console.log(message.data);
             const customId = message.data.custom_id;
-            console.log(customId);
             if (customId.startsWith("rate_")) {
                 const video_id = customId.match(/(?<=rate_).+/)[0];
                 const user = message.member.user;
@@ -205,11 +205,21 @@ export default async (request, response) => {
                         await sql `INSERT INTO ratings(video_id, username, rating, timestamp, notes) VALUES (${video_id}, ${user.username}, ${rating}, NOW(), ${notes})`;
                     }
                     catch (e) {
-                        console.log(e);
+                        if (e instanceof NeonDbError && e.code === "23505") {
+                            await sql `UPDATE ratings SET rating = ${rating}, timestamp = NOW(), notes = ${notes} WHERE video_id = ${video_id} AND username = ${user.username}`;
+                            response.status(200).send({
+                                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                                data: {
+                                    content: `Updated rating!\nYour rating was: ${rating} out of 100` + (notes ? `, with notes "${notes}"` : ""),
+                                    flags: 64
+                                },
+                            });
+                            return;
+                        }
                         response.status(200).send({
                             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                             data: {
-                                content: "You have already rated this short\n-# (this shows for every sql error but there shouldn't be other errors occuring lol, if this shows when it shouldnt lmk)",
+                                content: "an error happened that shouldnt have happened",
                                 flags: 64
                             }
                         });
