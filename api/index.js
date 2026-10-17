@@ -11,15 +11,7 @@ export const INVITE_COMMAND = {
 };
 export const GET_SHORTS_COMMAND = {
     name: "shorts",
-    description: "Get the last 25 shorts submitted by someone, with a button to check ratings",
-    options: [
-        {
-            name: "username",
-            description: "The username of the submitter, leave blank to check for last 25 shorts submitted by anyone",
-            type: 3,
-            required: false
-        }
-    ]
+    description: "Get the last 25 shorts that you haven't rated yet"
 };
 export const SUBMIT_COMMAND = {
     name: "submit",
@@ -34,24 +26,6 @@ export const SUBMIT_COMMAND = {
     ]
 };
 const INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${process.env.APPLICATION_ID}&scope=applications.commands`;
-function generateShortEntry(id, url) {
-    const content = `[link](https://discord.com/channels/${url})`;
-    return {
-        type: 9,
-        components: [
-            {
-                type: 10,
-                content: content
-            }
-        ],
-        accessory: {
-            type: 2,
-            style: 1,
-            label: "Get ratings",
-            custom_id: "ratings_get_" + id
-        }
-    };
-}
 export default async (request, response) => {
     if (request.method === "POST") {
         const signature = request.headers["x-signature-ed25519"];
@@ -81,23 +55,21 @@ export default async (request, response) => {
                     });
                     break;
                 case GET_SHORTS_COMMAND.name.toLowerCase():
-                    const options = message.data.options;
-                    console.log(`SELECT id, messageurl FROM shorts${options ? ` WHERE submitter = '${options[0].value}'` : ""} ORDER BY timestamp LIMIT 10`);
-                    const results = await sql `SELECT id, messageurl FROM shorts ORDER BY timestamp LIMIT 10`;
-                    const messageComponents = [];
+                    const results = await sql `SELECT id, messageurl FROM shorts ORDER BY timestamp LIMIT 25`;
+                    let content = "";
                     try {
                         for (const short of results) {
-                            messageComponents.push(generateShortEntry(short.id, short.messageurl));
+                            content += `https://discord.com/channels/${short.messageurl}\n`;
                         }
                     }
                     catch (e) {
                         console.error(e);
                     }
-                    console.log(messageComponents.toString());
+                    console.log(content);
                     response.status(200).send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                         data: {
-                            components: messageComponents,
+                            components: content,
                             flags: 32768,
                         },
                     });
@@ -144,7 +116,13 @@ export default async (request, response) => {
                                                         style: 1,
                                                         label: "Rate!",
                                                         custom_id: `rate_${id}`,
-                                                    }
+                                                    },
+                                                    {
+                                                        type: 2,
+                                                        style: 1,
+                                                        label: "Get Ratings!",
+                                                        custom_id: `ratings_get_${id}`,
+                                                    },
                                                 ]
                                             }
                                         ]
@@ -219,10 +197,22 @@ export default async (request, response) => {
                 const rating = parseInt(components[0].component.value);
                 const notes = components[1].component.value;
                 if (rating >= 0 && rating <= 100) {
+                    const results = await sql `SELECT 1 FROM shorts WHERE id = ${video_id} AND submitter = ${user.username}`;
+                    if (results.length > 0) {
+                        response.status(200).send({
+                            type: 4,
+                            data: {
+                                content: "You can't rate a short that you submitted",
+                                flags: 64
+                            }
+                        });
+                        return;
+                    }
                     try {
                         await sql `INSERT INTO ratings(video_id, username, rating, timestamp, notes) VALUES (${video_id}, ${user.username}, ${rating}, NOW(), ${notes})`;
                     }
-                    catch {
+                    catch (e) {
+                        console.log(e);
                         response.status(200).send({
                             type: 4,
                             data: {
@@ -230,6 +220,7 @@ export default async (request, response) => {
                                 flags: 64
                             }
                         });
+                        return;
                     }
                     response.status(200).send({
                         type: 4,
